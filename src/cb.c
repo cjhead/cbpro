@@ -7,7 +7,7 @@ void exchange_rates(CURL *curl, struct DataBuf *data, char *currency) {
     strcat(requestPath, currency);
 
     struct Request *request = init_cb_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(curl, request);
 }
 
 void spot_price(CURL *curl, struct DataBuf *data, char *currencyPair) {
@@ -19,5 +19,5 @@ void spot_price(CURL *curl, struct DataBuf *data, char *currencyPair) {
     strcat(requestPath, url_post);
 
     struct Request *request = init_cb_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(curl, request);
 }

@@ -2,10 +2,15 @@
 
 An interface to the Coinbase/CoinbasePro API
 
+![GitHub last commit](https://img.shields.io/github/last-commit/cjhead/cbpro)
+![GitHub](https://img.shields.io/github/license/cjhead/cbpro)
+![GitHub issues](https://img.shields.io/github/issues/cjhead/cbpro)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/cjhead/cbpro)
+
 ## Requirements
 
-- openssl
-- libcurl
+- [openssl](https://github.com/openssl/openssl)
+- [libcurl](https://github.com/curl/curl)
 
 ## Disclaimer
 
