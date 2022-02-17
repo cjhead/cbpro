@@ -9,50 +9,53 @@
 #include "utils.h"
 
 /*
-CoinbasePro API request functions which require authentication.
+ * CoinbasePro API request functions which require authentication.
 */
-void get_accounts(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data);
-void get_account_holds(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID);
-void get_account_id(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID);
-void get_account_ledger(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID);
-void get_account_transfers(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID);
 
-void get_coinbase_wallets(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data);
-void generate_coinbase_address(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *cbCryptoWalletID);
+// Accounts
+void get_accounts(struct Client *client, struct MemBuf *data);
+void get_account_holds(struct Client *client, struct MemBuf *data, char *accountID);
+void get_account_id(struct Client *client, struct MemBuf *data, char *accountID);
+void get_account_ledger(struct Client *client, struct MemBuf *data, char *accountID);
+void get_account_transfers(struct Client *client, struct MemBuf *data, char *accountID);
+
+void get_coinbase_wallets(struct Client *client, struct MemBuf *data);
+void generate_coinbase_address(struct Client *client, struct MemBuf *data, char *cbCryptoWalletID);
 
 // Profiles
-void get_profiles(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data);
-void get_profile(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *profileID);
-// Create_profile gives me forbidden access message?
-void create_profile(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *profileName);
+void get_profiles(struct Client *client, struct MemBuf *data);
+void get_profile(struct Client *client, struct MemBuf *data, char *profileID);
+void create_profile(struct Client *client, struct MemBuf *data, char *profileName);
 
+// Payment methods and fees
+void get_payment_methods(struct Client *client, struct MemBuf *data);
+void get_fees(struct Client *client, struct MemBuf *data);
+void get_fee_estimate(struct Client *client, struct MemBuf *data, char *currency, char *cbCryptoAddress);
 
-
-void get_payment_methods(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data);
-void get_fees(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data);
-void get_all_transfers(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data);
-void get_single_transfer(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *transferID);
-void get_fee_estimate(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *currency, char *cbCryptoAddress);
+// Transfers
+void get_all_transfers(struct Client *client, struct MemBuf *data);
+void get_single_transfer(struct Client *client, struct MemBuf *data, char *transferID);
 
 // Orders
-void get_all_fills(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *currencyPair);
+void get_all_fills(struct Client *client, struct MemBuf *data, char *currencyPair);
 
 
 /*
-Public requests sent to CoinbasePro API which are used unauthenticated.
+ * Public requests sent to CoinbasePro API which are used unauthenticated.
 */
+
 // Products
-void get_all_products(CURL *curl, struct MemBuf *data);
-void get_product(CURL *curl, struct MemBuf *data, char *currencyPair);
-void get_product_book(CURL *curl, struct MemBuf *data, char *currencyPair);
-void get_product_candles(CURL *curl, struct MemBuf *data, char *currencyPair);
-void get_product_stats(CURL *curl, struct MemBuf *data, char *currencyPair);
-void get_product_ticker(CURL *curl, struct MemBuf *data, char *currencyPair);
-void get_product_trades(CURL *curl, struct MemBuf *data, char *currencyPair);
+void get_all_products(struct Client *client, struct MemBuf *data);
+void get_product(struct Client *client, struct MemBuf *data, char *currencyPair);
+void get_product_book(struct Client *client, struct MemBuf *data, char *currencyPair);
+void get_product_candles(struct Client *client, struct MemBuf *data, char *currencyPair);
+void get_product_stats(struct Client *client, struct MemBuf *data, char *currencyPair);
+void get_product_ticker(struct Client *client, struct MemBuf *data, char *currencyPair);
+void get_product_trades(struct Client *client, struct MemBuf *data, char *currencyPair);
 
 // Currencies
-void get_currencies(CURL *curl, struct MemBuf *data);
-void get_currency(CURL *curl, struct MemBuf *data, char *currency);
-void get_signed_prices(CURL *curl, struct MemBuf *data);
+void get_currencies(struct Client *client, struct MemBuf *data);
+void get_currency(struct Client *client, struct MemBuf *data, char *currency);
+void get_signed_prices(struct Client *client, struct MemBuf *data);
 
 #endif

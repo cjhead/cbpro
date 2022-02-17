@@ -1,42 +1,72 @@
 #include "cbpro.h"
 
-void get_accounts(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data) {
+void get_accounts(struct Client *client, struct MemBuf *data) {
     char requestPath[10] = "/accounts";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_payment_methods(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data) {
+void get_payment_methods(struct Client *client, struct MemBuf *data) {
     char requestPath[17] = "/payment-methods";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_profiles(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data) {
+void get_profiles(struct Client *client, struct MemBuf *data) {
     char requestPath[10] = "/profiles";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_profile(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *profileID) {
+void get_profile(struct Client *client, struct MemBuf *data, char *profileID) {
     char requestPath[50] = "/profiles/";
     char method[4] = "GET";
 
     strcat(requestPath, profileID);
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void create_profile(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *profileName) {
+void create_profile(struct Client *client, struct MemBuf *data, char *profileName) {
     char requestPath[50] = "/profiles";
     char method[5] = "POST";
+
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
 
     int len = strlen(profileName) + 13;
 
@@ -44,166 +74,233 @@ void create_profile(CURL *curl, struct AuthClient *auth_client, struct MemBuf *d
 
     snprintf(post_data, len, "{\"name\":\"%s\"}", profileName);
 
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+    curl_easy_setopt(client->session, CURLOPT_POSTFIELDS, post_data);
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 
     free(post_data);
 }
 
-void get_account_id(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID) {
+void get_account_id(struct Client *client, struct MemBuf *data, char *accountID) {
     char requestPath[100] = "/accounts/";
     char method[4] = "GET";
+
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
 
     strcat(requestPath, accountID);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_account_holds(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID) {
+void get_account_holds(struct Client *client, struct MemBuf *data, char *accountID) {
     char requestPath[100] = "/accounts/";
     char method[4] = "GET";
     char url_post[7] = "/holds";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     strcat(requestPath, accountID);
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_account_ledger(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID) {
+void get_account_ledger(struct Client *client, struct MemBuf *data, char *accountID) {
     char requestPath[100] = "/accounts/";
     char url_post[8] = "/ledger";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     strcat(requestPath, accountID);
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_account_transfers(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *accountID) {
+void get_account_transfers(struct Client *client, struct MemBuf *data, char *accountID) {
     char requestPath[100] = "/accounts/";
     char url_post[11] = "/transfers";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     strcat(requestPath, accountID);
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_single_transfer(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *transferID) {
+void get_single_transfer(struct Client *client, struct MemBuf *data, char *transferID) {
     char requestPath[100] = "/transfers/";
     char method[4] = "GET";
+
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
 
     strcat(requestPath, transferID);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_all_transfers(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data) {
+void get_all_transfers(struct Client *client, struct MemBuf *data) {
     char requestPath[11] = "/transfers";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
 
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_coinbase_wallets(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data) {
+void get_coinbase_wallets(struct Client *client, struct MemBuf *data) {
     char requestPath[20] = "/coinbase-accounts/";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
 
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_fees(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data) {
+void get_fees(struct Client *client, struct MemBuf *data) {
     char requestPath[6] = "/fees";
     char method[4] = "GET";
 
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     struct Request *request = init_request(requestPath, method);
 
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void generate_coinbase_address(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *cbCryptoWalletID) {
+void generate_coinbase_address(struct Client *client, struct MemBuf *data, char *cbCryptoWalletID) {
     char requestPath[200] = "/coinbase-accounts/";
     char url_post[11] = "/addresses";
     char method[5] = "POST";
+
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
 
     strcat(requestPath, cbCryptoWalletID);
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_fee_estimate(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *currency, char *cbCryptoAddress) {
+void get_fee_estimate(struct Client *client, struct MemBuf *data, char *currency, char *cbCryptoAddress) {
     char requestPath[100] = "/withdrawals/fee-estimate?currency=";
     char method[4] = "GET";
+
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
+
     strcat(requestPath, currency);
     strcat(requestPath, "&crypto_address=");
     strcat(requestPath, cbCryptoAddress);
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_all_fills(CURL *curl, struct AuthClient *auth_client, struct MemBuf *data, char *currencyPair) {
+void get_all_fills(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[100] = "/fills?product_id=";
     char method[4] = "GET";
+
+    if(client->authenticated == false) {
+        puts("Client is unauthenticated.");
+        puts("Call the function 'authorize_client' and try again.\n");
+        exit(1);
+    }
 
     strcat(requestPath, currencyPair);
     strcat(requestPath, "&profile_id=default&limit=100");
 
     struct Request *request = init_request(requestPath, method);
-    send_request(curl, request, auth_client, data);
+    send_request(request, client, data);
 }
 
-void get_currencies(CURL *curl, struct MemBuf *data) {
+void get_currencies(struct Client *client, struct MemBuf *data) {
     char requestPath[12] = "/currencies";
     char method[4] = "GET";
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_currency(CURL *curl, struct MemBuf *data, char *currency) {
+void get_currency(struct Client *client, struct MemBuf *data, char *currency) {
     char requestPath[25] = "/currencies/";
     char method[4] = "GET";
 
     strcat(requestPath, currency);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_all_products(CURL *curl, struct MemBuf *data) {
+void get_all_products(struct Client *client, struct MemBuf *data) {
     char requestPath[10] = "/products";
     char method[4] = "GET";
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_product(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void get_product(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[25] = "/products/";
     char method[4] = "GET";
 
     strcat(requestPath, currencyPair);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_product_book(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void get_product_book(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[25] = "/products/";
     char url_post[25] = "/book?level=1";
     char method[4] = "GET";
@@ -212,10 +309,10 @@ void get_product_book(CURL *curl, struct MemBuf *data, char *currencyPair) {
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_product_candles(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void get_product_candles(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[25] = "/products/";
     char url_post[25] = "/candles?granularity=60";
     char method[4] = "GET";
@@ -224,10 +321,10 @@ void get_product_candles(CURL *curl, struct MemBuf *data, char *currencyPair) {
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_product_stats(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void get_product_stats(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[25] = "/products/";
     char url_post[25] = "/stats";
     char method[4] = "GET";
@@ -236,10 +333,10 @@ void get_product_stats(CURL *curl, struct MemBuf *data, char *currencyPair) {
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_product_ticker(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void get_product_ticker(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[25] = "/products/";
     char url_post[25] = "/ticker";
     char method[4] = "GET";
@@ -248,10 +345,10 @@ void get_product_ticker(CURL *curl, struct MemBuf *data, char *currencyPair) {
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_product_trades(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void get_product_trades(struct Client *client, struct MemBuf *data, char *currencyPair) {
     char requestPath[25] = "/products/";
     char url_post[25] = "/trades";
     char method[4] = "GET";
@@ -260,13 +357,13 @@ void get_product_trades(CURL *curl, struct MemBuf *data, char *currencyPair) {
     strcat(requestPath, url_post);
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }
 
-void get_signed_prices(CURL *curl, struct MemBuf *data) {
+void get_signed_prices(struct Client *client, struct MemBuf *data) {
     char requestPath[8] = "/oracle";
     char method[4] = "GET";
 
     struct Request *request = init_request(requestPath, method);
-    send_unauth_request(curl, request, data);
+    send_unauth_request(client, request, data);
 }

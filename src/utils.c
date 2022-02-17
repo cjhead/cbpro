@@ -12,14 +12,14 @@ CURL *init_session() {
     return curl;
 }
 
-struct AuthClient *create_auth_client(const char *filename) {
+void authorize_client(const char *filename, struct Client *client) {
 
     const size_t MAX_LEN = 100;
     const size_t MAX_CMP = 11;
 
-    struct AuthClient *auth_client = (struct AuthClient *)malloc(sizeof(struct AuthClient));
-    if (auth_client == NULL) {
-        printf("Unable to allocate memory for auth_client.\n");
+    client->creds = malloc(sizeof(struct Credentials));
+    if (client->creds == NULL) {
+        printf("Unable to allocate memory for credentials.\n");
         exit(1);
     }
 
@@ -36,33 +36,45 @@ struct AuthClient *create_auth_client(const char *filename) {
 
         if (!strncmp(token, "secret_key", MAX_CMP)) {
             token = strtok(NULL, " ");
-            auth_client->secret_key = malloc(strnlen(token, MAX_LEN)+1);
-            if (auth_client->secret_key == NULL) {
+            client->creds->secret_key = malloc(strnlen(token, MAX_LEN)+1);
+            if (client->creds->secret_key == NULL) {
                 printf("Unable to allocate memory for secret key.\n");
                 exit(1);
             }
-            strncpy(auth_client->secret_key, token, strnlen(token, MAX_LEN)+1);
+            strncpy(client->creds->secret_key, token, strnlen(token, MAX_LEN)+1);
         } else if (!strncmp(token, "api_key", MAX_CMP)) {
             token = strtok(NULL, " ");
-            auth_client->api_key = malloc(strnlen(token, MAX_LEN)+1);
-            if (auth_client->api_key == NULL) {
+            client->creds->api_key = malloc(strnlen(token, MAX_LEN)+1);
+            if (client->creds->api_key == NULL) {
                 printf("Unable to allocate memory for api key.\n");
                 exit(1);
             }
-            strncpy(auth_client->api_key, token, strnlen(token, MAX_LEN)+1);
+            strncpy(client->creds->api_key, token, strnlen(token, MAX_LEN)+1);
         } else if (!strncmp(token, "passphrase", MAX_CMP)) {
             token = strtok(NULL, " ");
-            auth_client->passphrase = malloc(strnlen(token, MAX_LEN)+1);
-            if (auth_client->passphrase == NULL) {
+            client->creds->passphrase = malloc(strnlen(token, MAX_LEN)+1);
+            if (client->creds->passphrase == NULL) {
                 printf("Unable to allocate memory for passphrase.\n");
                 exit(1);
             }
-            strncpy(auth_client->passphrase, token, strnlen(token, MAX_LEN)+1);
+            strncpy(client->creds->passphrase, token, strnlen(token, MAX_LEN)+1);
         }
     }
+    client->authenticated = true;
 
     fclose(fh);
-    return auth_client;
+}
+
+void client_cleanup(struct Client *client) {
+    if(client->authenticated == true) {
+        free(client->creds->passphrase);
+        free(client->creds->api_key);
+        free(client->creds->secret_key);
+        free(client->creds);
+        client->authenticated = false;
+    }
+    curl_easy_cleanup(client->session);
+    free(client);
 }
 
 struct Request *init_request(char *requestPath, char *method) {
@@ -84,7 +96,6 @@ struct Request *init_request(char *requestPath, char *method) {
     strcpy(request->url, url);
     strcpy(request->method, method);
     strcpy(request->requestPath, requestPath);
-
 
     return request;
 }
@@ -128,7 +139,7 @@ struct MemBuf *init_json_buffer() {
     return json_buffer;
 }
 
-static void create_message(struct Request *request) {
+void create_message(struct Request *request) {
     const size_t MAX_LEN = 100;
 
     time_t time_now = time(NULL);
@@ -139,14 +150,14 @@ static void create_message(struct Request *request) {
     strncat(request->digest->message, request->requestPath, MAX_LEN);
 }
 
-static void create_signature(struct Digest *digest, struct AuthClient *auth_client) {
+void create_signature(struct Digest *digest, struct Client *client) {
 
     char hmac_key[65];
     int key_len = 64;
 
     EVP_DecodeBlock((unsigned char *)hmac_key,
-                     (const unsigned char *)auth_client->secret_key,
-                     strnlen(auth_client->secret_key, 100));
+                     (const unsigned char *)client->creds->secret_key,
+                     strnlen(client->creds->secret_key, 100));
 
     unsigned char *hmac = NULL;
     unsigned int hmac_len;
@@ -163,9 +174,9 @@ static void create_signature(struct Digest *digest, struct AuthClient *auth_clie
                     hmac_len);
 }
 
-static struct curl_slist *set_headers(struct Request *request, struct AuthClient *auth_client) {
+struct curl_slist *set_headers(struct Request *request, struct Client *client) {
     create_message(request);
-    create_signature(request->digest, auth_client);
+    create_signature(request->digest, client);
 
     char cb_timestamp_header[100] = "cb-access-timestamp: ";
     strncat(cb_timestamp_header, request->timestamp, 100);
@@ -174,10 +185,10 @@ static struct curl_slist *set_headers(struct Request *request, struct AuthClient
     strncat(cb_access_header, request->digest->sig, 100);
 
     char api_key_header[100] = "cb-access-key: ";
-    strncat(api_key_header, auth_client->api_key, 100);
+    strncat(api_key_header, client->creds->api_key, 100);
 
     char passphrase_header[100] = "cb-access-passphrase: ";
-    strncat(passphrase_header, auth_client->passphrase, 100);
+    strncat(passphrase_header, client->creds->passphrase, 100);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Accept: application/json");
@@ -193,16 +204,16 @@ static struct curl_slist *set_headers(struct Request *request, struct AuthClient
     return headers;
 }
 
-void send_unauth_request(CURL *curl, struct Request *request, struct MemBuf *data) {
-    curl_easy_setopt(curl, CURLOPT_URL, request->url);
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, request->method);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)data);
+void send_unauth_request(struct Client *client, struct Request *request, struct MemBuf *data) {
+    curl_easy_setopt(client->session, CURLOPT_URL, request->url);
+    curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
+    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)data);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Accept: application/json");
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(client->session, CURLOPT_HTTPHEADER, headers);
 
-    CURLcode result = curl_easy_perform(curl);
+    CURLcode result = curl_easy_perform(client->session);
     if (result != CURLE_OK) {
         fprintf(stderr, "Download problem: %s\n", curl_easy_strerror(result));
     }
@@ -212,15 +223,15 @@ void send_unauth_request(CURL *curl, struct Request *request, struct MemBuf *dat
     free(request);
 }
 
-void send_request(CURL *curl, struct Request *request, struct AuthClient *auth_client, struct MemBuf *data) {
-    curl_easy_setopt(curl, CURLOPT_URL, request->url);
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, request->method);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)data);
+void send_request(struct Request *request, struct Client *client, struct MemBuf *data) {
+    curl_easy_setopt(client->session, CURLOPT_URL, request->url);
+    curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
+    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)data);
 
-    struct curl_slist *headers = set_headers(request, auth_client);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    struct curl_slist *headers = set_headers(request, client);
+    curl_easy_setopt(client->session, CURLOPT_HTTPHEADER, headers);
 
-    CURLcode result = curl_easy_perform(curl);
+    CURLcode result = curl_easy_perform(client->session);
     if (result != CURLE_OK) {
         fprintf(stderr, "Download problem: %s\n", curl_easy_strerror(result));
     }
