@@ -7,16 +7,22 @@ An interface to the Coinbase/CoinbasePro API
 ![GitHub issues](https://img.shields.io/github/issues/cjhead/cbpro)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/cjhead/cbpro)
 
-## Requirements
+## Table of Contents
+- [Introduction](#introduction)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Configuration](#configuration)
 
-- [openssl](https://github.com/openssl/openssl)
-- [libcurl](https://github.com/curl/curl)
-
-## Disclaimer
+## Introduction
 
 - Currently a work in progress.
 - I'm using this project to help further my understanding of the C language so there will be many, many changes as I progress, but hopefully there will be something you can take away.
 - The src/main.c file is meant as a test implementation.
+
+## Requirements
+
+- [openssl](https://github.com/openssl/openssl)
+- [libcurl](https://github.com/curl/curl)
 
 ## Usage
 
