@@ -5,22 +5,13 @@
 
 int main(void) {
 
-    struct MemBuf *data = init_json_buffer();
+    struct Client *client = client_create();
 
-    struct Client *client = malloc(sizeof(struct Client));
-    client->session = init_session();
-    client->authenticated = false;
-
-    /*
-     * Call these to authenticate the client
-    */
-
+    // Call these to authenticate the client
     // const char *cred_file = "creds.txt";
     // authorize_client(cred_file, client);
 
-    /*
-     * Examples
-    */
+    // Example Parameters
     // char *accountID = "********-****-****-****-************";
     // char *transferID = "********-****-****-****-************";
     // char *profileID = "********-****-****-****-************";
@@ -29,69 +20,64 @@ int main(void) {
     // char *cbCryptoAddress = "**********************************";
     // char *cbCryptoWalletID = "********-****-****-****-************";
 
+     /*************************
+     * Authorized Access Only *
+     *************************/
 
+    // get_accounts(client);
+    // get_account_id(client, accountID);
+    // get_account_holds(client, accountID);
+    // get_account_ledger(client, accountID);
+    // get_account_transfers(client, accountID);
 
+    // get_all_transfers(client);
+    // get_single_transfer(client, transferID);
 
-    /*
-     * Authorized Access Only
-    */
+    // get_fees(client);
+    // get_payment_methods(client);
+    // get_coinbase_wallets(client);
+    // generate_coinbase_address(client, cbCryptoWalletID);
 
-    // get_accounts(client, data);
-    // get_account_id(client, data, accountID);
-    // get_account_holds(client, data, accountID);
-    // get_account_ledger(client, data, accountID);
-    // get_account_transfers(client, data, accountID);
+    // get_profiles(client);
+    // get_profile(client, profileID);
+    // create_profile(client, profileName);
 
-    // get_all_transfers(client, data);
-    // get_single_transfer(client, data, transferID);
+    // get_fee_estimate(client, currency, cbCryptoAddress);
+    // get_all_fills(client, currencyPair);
 
-    // get_fees(client, data);
-    // get_payment_methods(client, data);
-    // get_payment_methods(client, data);
-    // get_coinbase_wallets(client, data);
-    // generate_coinbase_address(client, data, cbCryptoWalletID);
-
-    // get_profiles(client, data);
-    // get_profile(client, data, profileID);
-    // create_profile(client, data, profileName);
-
-    // get_fee_estimate(client, data, currency, cbCryptoAddress);
-    // get_all_fills(client, data, currencyPair);
-
-    /*
-     * Public Access
-    */
+     /****************
+     * Public Access *
+     ****************/
 
     // Products
-    // get_all_products(client, data);
-    // get_product(client, data, currencyPair);
-    // get_product_book(client, data, currencyPair);
-    // get_product_candles(client, data, currencyPair);
-    // get_product_stats(client, data, currencyPair);
-    // get_product_ticker(client, data, currencyPair);
-    // get_product_trades(client, data, currencyPair);
-
+    // get_all_products(client);
+    // get_product(client, currencyPair);
+    // get_product_book(client, currencyPair);
+    // get_product_candles(client, currencyPair);
+    // get_product_stats(client, currencyPair);
+    // get_product_ticker(client, currencyPair);
+    // get_product_trades(client, currencyPair);
 
     // Currencies
-    // get_currencies(client, data);
-    // get_currency(client, data, currency);
+    // get_currencies(client);
+    // get_currency(client, currency);
 
     // Signed prices from Oracle
-    // get_signed_prices(client, data);
+    // get_signed_prices(client);
 
-    /*
-     * Coinbase API
-    */
+     /***************
+     * Coinbase API *
+     ***************/
 
-    // spot_price(client, data, currencyPair);
-    // exchange_rates(client, data, currency);
+    // spot_price(client, currencyPair);
+    // exchange_rates(client, currency);
 
-    /*
-     *  Results
-    */
+     /**********
+     * Results *
+     **********/
 
-    // Unformatted and doesn't rely on cJSON
-    printf("%s\n", data->buffer);
+    // Print results to stdout, unformatted
+    // printf("%s\n", client->data->buffer);
 
     // Formatted with cJSON
     // cJSON *json = cJSON_Parse(data->buffer);
@@ -102,8 +88,10 @@ int main(void) {
     // cJSON_Delete(json);
     // free(result);
 
-    free(data->buffer);
-    free(data);
+
+    /**********
+    * Cleanup *
+    **********/
 
     client_cleanup(client);
     curl_global_cleanup();

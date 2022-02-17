@@ -12,6 +12,14 @@ CURL *init_session() {
     return curl;
 }
 
+struct Client *client_create() {
+    struct Client *client = malloc(sizeof(struct Client));
+    client->data = data_buffer_create();
+    client->session = init_session();
+    client->authenticated = false;
+    return client;
+}
+
 void authorize_client(const char *filename, struct Client *client) {
 
     const size_t MAX_LEN = 100;
@@ -26,7 +34,7 @@ void authorize_client(const char *filename, struct Client *client) {
     FILE *fh = fopen(filename, "r");
     if (!fh) {
         printf("File with credentials not found\n");
-    exit(1);
+        exit(1);
     }
 
     char line[256];
@@ -73,6 +81,12 @@ void client_cleanup(struct Client *client) {
         free(client->creds);
         client->authenticated = false;
     }
+
+    if(client->data->size > 0) {
+        free(client->data->buffer);
+    }
+
+    free(client->data);
     curl_easy_cleanup(client->session);
     free(client);
 }
@@ -123,20 +137,34 @@ struct Request *init_cb_request(char *requestPath, char *method) {
     return request;
 }
 
-struct MemBuf *init_json_buffer() {
-    struct MemBuf *json_buffer = (struct MemBuf *)malloc(sizeof(struct MemBuf));
-    if (!json_buffer) {
+struct DataBuf *data_buffer_create() {
+    struct DataBuf *data_buffer = (struct DataBuf *)malloc(sizeof(struct DataBuf));
+    if (!data_buffer) {
         printf("Unable to allocate memory for json buffer");
         exit(1);
     }
-    json_buffer->buffer = malloc(1);
-    if (!json_buffer->buffer) {
+    data_buffer->buffer = malloc(1);
+    if (!data_buffer->buffer) {
         printf("Unable to allocate memory for json buffer.\n");
         exit(1);
     }
-    json_buffer->size = 0;
+    data_buffer->size = 0;
 
-    return json_buffer;
+    return data_buffer;
+}
+
+void data_buffer_reset(struct DataBuf *data_buf) {
+    if(data_buf->size > 0) {
+        free(data_buf->buffer);
+
+        data_buf->buffer = malloc(1);
+        if (data_buf->buffer == NULL) {
+            printf("Unable to allocate memory for credentials.\n");
+            exit(1);
+        }
+
+        data_buf->size = 0;
+    }
 }
 
 void create_message(struct Request *request) {
@@ -204,10 +232,10 @@ struct curl_slist *set_headers(struct Request *request, struct Client *client) {
     return headers;
 }
 
-void send_unauth_request(struct Client *client, struct Request *request, struct MemBuf *data) {
+void send_unauth_request(struct Client *client, struct Request *request) {
     curl_easy_setopt(client->session, CURLOPT_URL, request->url);
     curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
-    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)data);
+    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)client->data);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Accept: application/json");
@@ -223,10 +251,10 @@ void send_unauth_request(struct Client *client, struct Request *request, struct 
     free(request);
 }
 
-void send_request(struct Request *request, struct Client *client, struct MemBuf *data) {
+void send_request(struct Request *request, struct Client *client) {
     curl_easy_setopt(client->session, CURLOPT_URL, request->url);
     curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
-    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)data);
+    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)client->data);
 
     struct curl_slist *headers = set_headers(request, client);
     curl_easy_setopt(client->session, CURLOPT_HTTPHEADER, headers);
@@ -243,7 +271,7 @@ void send_request(struct Request *request, struct Client *client, struct MemBuf 
 
 size_t write_cb(char *contents, size_t itemsize, size_t nitems, void *stream) {
     size_t bytes = itemsize * nitems;
-    struct MemBuf *buf = (struct MemBuf *)stream;
+    struct DataBuf *buf = (struct DataBuf *)stream;
 
     char *ptr = realloc(buf->buffer, buf->size + bytes + 1);
     if (!ptr) {

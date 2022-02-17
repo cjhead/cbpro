@@ -1,6 +1,6 @@
 #include "cb.h"
 
-void exchange_rates(CURL *curl, struct MemBuf *data, char *currency) {
+void exchange_rates(CURL *curl, struct DataBuf *data, char *currency) {
     char requestPath[60] = "/exchange-rates?currency=";
     char method[4] = "GET";
 
@@ -10,7 +10,7 @@ void exchange_rates(CURL *curl, struct MemBuf *data, char *currency) {
     send_unauth_request(curl, request, data);
 }
 
-void spot_price(CURL *curl, struct MemBuf *data, char *currencyPair) {
+void spot_price(CURL *curl, struct DataBuf *data, char *currencyPair) {
     char requestPath[60] = "/prices/";
     char url_post[6] = "/spot";
     char method[4] = "GET";

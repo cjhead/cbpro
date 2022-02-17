@@ -9,7 +9,7 @@
  * Coinbase API
 */
 
-void exchange_rates(CURL *curl, struct MemBuf *data, char *currency);
-void spot_price(CURL *curl, struct MemBuf *data, char *currencyPair);
+void exchange_rates(CURL *curl, struct DataBuf *data, char *currency);
+void spot_price(CURL *curl, struct DataBuf *data, char *currencyPair);
 
 #endif
