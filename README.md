@@ -7,11 +7,14 @@ An interface to the Coinbase/CoinbasePro API
 - openssl
 - libcurl
 
-## Usage
+## Disclaimer
 
 - Currently a work in progress.
 - I'm using this project to help further my understanding of the C language so there will be many, many changes as I progress, but hopefully there will be something you can take away.
 - The src/main.c file is meant as a test implementation.
+
+## Usage
+
 - My goal was to make the process as easy as possible. To begin, create a
   Client
 
@@ -54,7 +57,7 @@ api_key *************
 passphrase *********
 ```
 
-- NOTE: This is most likely not very secure.
+- **NOTE: This is most likely not very secure.**
 
 - You should then be able to use the functions requiring authentication.
 
