@@ -1,8 +1,11 @@
+#include <stdlib.h>
+#include <string.h>
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
 #include "utils.h"
-#include "cbpro.h"
+#include "cbpro_err.h"
 
 CURL *init_session() {
-
     curl_global_init(CURL_GLOBAL_ALL);
     CURL *curl = curl_easy_init();
 
@@ -20,21 +23,18 @@ struct Client *client_create() {
     return client;
 }
 
-void authorize_client(const char *filename, struct Client *client) {
-
+int authorize_client(const char *filename, struct Client *client) {
     const size_t MAX_LEN = 100;
     const size_t MAX_CMP = 11;
 
     client->creds = malloc(sizeof(struct Credentials));
     if (client->creds == NULL) {
-        printf("Unable to allocate memory for credentials.\n");
-        exit(1);
+        return(FAILED_MEMORY_ALLOCATION);
     }
 
     FILE *fh = fopen(filename, "r");
     if (!fh) {
-        printf("File with credentials not found\n");
-        exit(1);
+        return(FILE_NOT_FOUND);
     }
 
     char line[256];
@@ -46,24 +46,21 @@ void authorize_client(const char *filename, struct Client *client) {
             token = strtok(NULL, " ");
             client->creds->secret_key = malloc(strnlen(token, MAX_LEN)+1);
             if (client->creds->secret_key == NULL) {
-                printf("Unable to allocate memory for secret key.\n");
-                exit(1);
+                return(FAILED_MEMORY_ALLOCATION);
             }
             strncpy(client->creds->secret_key, token, strnlen(token, MAX_LEN)+1);
         } else if (!strncmp(token, "api_key", MAX_CMP)) {
             token = strtok(NULL, " ");
             client->creds->api_key = malloc(strnlen(token, MAX_LEN)+1);
             if (client->creds->api_key == NULL) {
-                printf("Unable to allocate memory for api key.\n");
-                exit(1);
+                return(FAILED_MEMORY_ALLOCATION);
             }
             strncpy(client->creds->api_key, token, strnlen(token, MAX_LEN)+1);
         } else if (!strncmp(token, "passphrase", MAX_CMP)) {
             token = strtok(NULL, " ");
             client->creds->passphrase = malloc(strnlen(token, MAX_LEN)+1);
             if (client->creds->passphrase == NULL) {
-                printf("Unable to allocate memory for passphrase.\n");
-                exit(1);
+                return(FAILED_MEMORY_ALLOCATION);
             }
             strncpy(client->creds->passphrase, token, strnlen(token, MAX_LEN)+1);
         }
@@ -71,6 +68,7 @@ void authorize_client(const char *filename, struct Client *client) {
     client->authenticated = true;
 
     fclose(fh);
+    return(0);
 }
 
 void client_cleanup(struct Client *client) {
@@ -133,7 +131,6 @@ struct Request *init_cb_request(char *requestPath, char *method) {
     strcpy(request->method, method);
     strcpy(request->requestPath, requestPath);
 
-
     return request;
 }
 
@@ -143,6 +140,7 @@ struct DataBuf *data_buffer_create() {
         printf("Unable to allocate memory for json buffer");
         exit(1);
     }
+
     data_buffer->buffer = malloc(1);
     if (!data_buffer->buffer) {
         printf("Unable to allocate memory for json buffer.\n");
@@ -153,18 +151,18 @@ struct DataBuf *data_buffer_create() {
     return data_buffer;
 }
 
-void data_buffer_reset(struct DataBuf *data_buf) {
+int data_buffer_reset(struct DataBuf *data_buf) {
     if(data_buf->size > 0) {
         free(data_buf->buffer);
 
         data_buf->buffer = malloc(1);
         if (data_buf->buffer == NULL) {
-            printf("Unable to allocate memory for credentials.\n");
-            exit(1);
+            return(FAILED_MEMORY_ALLOCATION);
         }
 
         data_buf->size = 0;
     }
+    return(0);
 }
 
 void create_message(struct Request *request) {
@@ -179,7 +177,6 @@ void create_message(struct Request *request) {
 }
 
 void create_signature(struct Digest *digest, struct Client *client) {
-
     char hmac_key[65];
     int key_len = 64;
 
@@ -225,10 +222,6 @@ struct curl_slist *set_headers(struct Request *request, struct Client *client) {
     headers = curl_slist_append(headers, cb_access_header);
     headers = curl_slist_append(headers, cb_timestamp_header);
 
-    if (!headers) {
-        printf("Unable to format headers.\n");
-        exit(1);
-    }
     return headers;
 }
 

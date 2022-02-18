@@ -1,10 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdio.h>
-#include <stdbool.h>
 #include <curl/curl.h>
-#include <stdarg.h>
+#include <stdbool.h>
 
 struct Credentials {
     char *secret_key;
@@ -42,7 +40,7 @@ struct DataBuf {
  * Initializes an authenticated client from credentials found in filename.
 */
 struct Client *client_create();
-void authorize_client(const char *filename, struct Client *client);
+int authorize_client(const char *filename, struct Client *client);
 struct Request *init_request(char *requestPath, char *method);
 struct Request *init_cb_request(char *requestPath, char *method);
 void client_cleanup(struct Client *client);
@@ -62,7 +60,7 @@ void create_signature(struct Digest *digest, struct Client *client);
 CURL *init_session();
 struct curl_slist *set_headers(struct Request *request, struct Client *client);
 struct DataBuf *data_buffer_create();
-void data_buffer_reset(struct DataBuf *data_buf);
+int data_buffer_reset(struct DataBuf *data_buf);
 void send_request(struct Request *request, struct Client *client);
 void send_unauth_request(struct Client *client, struct Request *request);
 size_t write_cb(char *contents, size_t itemsize, size_t nitems, void *stream);

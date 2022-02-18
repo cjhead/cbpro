@@ -1,6 +1,8 @@
+#include <stdlib.h>
 #include "cb.h"
 #include "cbpro.h"
 #include "utils.h"
+#include "cbpro_err.h"
 //#include <cjson/cJSON.h>
 
 int main(void) {
