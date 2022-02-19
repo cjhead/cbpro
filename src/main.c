@@ -54,7 +54,6 @@ int main(void) {
     // Products
     // get_all_products(client);
     // get_product(client, currencyPair);
-    // printf("%s\n", client->data->buffer);
     // get_product_book(client, currencyPair);
     // get_product_candles(client, currencyPair);
     // get_product_stats(client, currencyPair);

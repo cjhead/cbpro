@@ -4,6 +4,13 @@
 #include <curl/curl.h>
 #include <stdbool.h>
 
+enum Method {
+    GET,
+    POST,
+    PUT,
+    DELETE
+};
+
 struct Credentials {
     char *secret_key;
     char *api_key;
@@ -61,8 +68,8 @@ CURL *init_session();
 struct curl_slist *set_headers(struct Request *request, struct Client *client);
 struct DataBuf *data_buffer_create();
 int data_buffer_reset(struct DataBuf *data_buf);
-void send_request(struct Request *request, struct Client *client);
-void send_unauth_request(struct Client *client, struct Request *request);
+void send_request(struct Client *client, char *requestPath, enum Method req_method);
+void send_unauth_request(struct Client *client, char *requestPath, enum Method req_method);
 size_t write_cb(char *contents, size_t itemsize, size_t nitems, void *stream);
 
 #endif

@@ -225,7 +225,28 @@ struct curl_slist *set_headers(struct Request *request, struct Client *client) {
     return headers;
 }
 
-void send_unauth_request(struct Client *client, struct Request *request) {
+void send_unauth_request(struct Client *client, char *requestPath, enum Method req_method) {
+    data_buffer_reset(client->data);
+    char method[7];
+    switch(req_method) {
+        case GET:
+            strncpy(method, "GET", 4);
+            break;
+        case POST:
+            strncpy(method, "POST", 5);
+            break;
+        case PUT:
+            strncpy(method, "PUT", 4);
+            break;
+        case DELETE:
+            strncpy(method, "DELETE", 7);
+            break;
+        default:
+            strncpy(method, "ERR", 4);
+            break;
+    }
+
+    struct Request *request = init_request(requestPath, method);
     curl_easy_setopt(client->session, CURLOPT_URL, request->url);
     curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
     curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)client->data);
@@ -244,9 +265,29 @@ void send_unauth_request(struct Client *client, struct Request *request) {
     free(request);
 }
 
-void send_request(struct Request *request, struct Client *client) {
+void send_request(struct Client *client, char *requestPath, enum Method req_method) {
     data_buffer_reset(client->data);
 
+    char method[7];
+    switch(req_method) {
+        case GET:
+            strncpy(method, "GET", 4);
+            break;
+        case POST:
+            strncpy(method, "POST", 5);
+            break;
+        case PUT:
+            strncpy(method, "PUT", 4);
+            break;
+        case DELETE:
+            strncpy(method, "DELETE", 7);
+            break;
+        default:
+            strncpy(method, "ERR", 4);
+            break;
+    }
+
+    struct Request *request = init_request(requestPath, method);
     curl_easy_setopt(client->session, CURLOPT_URL, request->url);
     curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
     curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)client->data);
