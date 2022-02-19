@@ -18,6 +18,7 @@ An interface to the Coinbase/CoinbasePro API
 - Currently a work in progress.
 - I'm using this project to help further my understanding of the C language so there will be many, many changes as I progress, but hopefully there will be something you can take away.
 - The src/main.c file is meant as a test implementation.
+- If there's anything you want to see added, please let me know!
 
 ## Requirements
 
