@@ -245,6 +245,8 @@ void send_unauth_request(struct Client *client, struct Request *request) {
 }
 
 void send_request(struct Request *request, struct Client *client) {
+    data_buffer_reset(client->data);
+
     curl_easy_setopt(client->session, CURLOPT_URL, request->url);
     curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
     curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)client->data);
