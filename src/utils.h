@@ -47,7 +47,8 @@ struct DataBuf {
  * Initializes an authenticated client from credentials found in filename.
 */
 struct Client *client_create();
-int authorize_client(const char *filename, struct Client *client);
+// int authorize_client(const char *filename, struct Client *client);
+int authorize_client(FILE *fh, struct Client *client);
 struct Request *init_request(char *requestPath, char *method);
 struct Request *init_cb_request(char *requestPath, char *method);
 void client_cleanup(struct Client *client);

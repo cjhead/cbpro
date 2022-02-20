@@ -11,7 +11,8 @@ int main(void) {
 
     // Call these to authenticate the client
     // const char *cred_file = "creds.txt";
-    // authorize_client(cred_file, client);
+    // FILE *fh = fopen(cred_file, "r");
+    // authorize_client(fh, client);
 
     // Example Parameters
     // char *accountID = "********-****-****-****-************";
