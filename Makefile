@@ -13,9 +13,11 @@ OBJS=$(patsubst $(SRC)%.c, $(OBJ)/%.o, $(SRCS))
 all:$(BIN)
 
 $(BIN): $(OBJS)
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(LDLIBS) $^ -o $@
 
 $(OBJ)/%.o: $(SRC)/%.c
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(LDLIBS) -c $^ -o $@
 
 clean:
