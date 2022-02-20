@@ -23,7 +23,6 @@ struct Client *client_create() {
     return client;
 }
 
-// int authorize_client(const char *filename, struct Client *client) {
 int authorize_client(FILE *fh, struct Client *client) {
     const size_t MAX_LEN = 100;
     const size_t MAX_CMP = 11;
@@ -36,11 +35,6 @@ int authorize_client(FILE *fh, struct Client *client) {
     if (client->creds == NULL) {
         return(FAILED_MEMORY_ALLOCATION);
     }
-
-    // FILE *fh = fopen(filename, "r");
-    // if (!fh) {
-    //     return(FILE_NOT_FOUND);
-    // }
 
     char line[256];
     while (fgets(line, sizeof(line), fh)) {

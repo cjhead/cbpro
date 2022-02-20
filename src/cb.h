@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "utils.h"
 
-
 /*
  * Coinbase API
 */
