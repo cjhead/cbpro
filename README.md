@@ -1,6 +1,6 @@
 # CBPro
 
-An interface to the Coinbase/CoinbasePro API
+A library to interface with the Coinbase/CoinbasePro API
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/cjhead/cbpro)
 ![GitHub](https://img.shields.io/github/license/cjhead/cbpro)
@@ -9,26 +9,35 @@ An interface to the Coinbase/CoinbasePro API
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [Requirements](#requirements)
+- [Dependencies](#dependencies)
+- [Install](#install)
 - [Usage](#usage)
 - [Configuration](#configuration)
 
 ## Introduction
-
 - Currently a work in progress.
 - I'm using this project to help further my understanding of the C language so there will be many, many changes as I progress, but hopefully there will be something you can take away.
 - The src/main.c file is meant as a test implementation.
 - If there's anything you want to see added, please let me know!
 
-## Requirements
-
+## Dependencies
 - [openssl](https://github.com/openssl/openssl)
 - [libcurl](https://github.com/curl/curl)
 
-## Usage
+## Optional Dependencies
+- [cJSON](https://github.com/DaveGamble/cJSON) - To format and parse the output.
 
-- My goal was to make the process as easy as possible. To begin, create a
-  Client
+## Install
+
+```
+git clone https://github.com/cjhead/cbpro.git
+cd cbpro
+```
+
+## Usage
+- My goal was to make the process as easy as possible.
+- The src/main.c file can be used as a simple template; just uncomment what you need.
+- To begin from scratch, create a Client:
 
 ```c
 int main(void) {
@@ -96,10 +105,12 @@ int main(void) {
 }
 ```
 
+- When ready, run `make`
+
 ## Configuration
 
 - For the functions that require authorization, you'll need to put your
-  credentials in a text file similar to this:
+  credentials in a text file with a format like to this:
 ```
 secret_key ****************
 api_key *************
