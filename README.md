@@ -7,6 +7,10 @@ A library to interface with the Coinbase/CoinbasePro API
 ![GitHub issues](https://img.shields.io/github/issues/cjhead/cbpro)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/cjhead/cbpro)
 
+![GitHub Repo stars](https://img.shields.io/github/stars/cjhead/cbpro?style=social)
+![GitHub forks](https://img.shields.io/github/forks/cjhead/cbpro?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/cjhead/cbpro?style=social)
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Dependencies](#dependencies)
