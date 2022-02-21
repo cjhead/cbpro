@@ -39,11 +39,15 @@ cd cbpro
 make
 ```
 
-To create and run a simple test program:
+To create and run a couple simple test programs:
 
 ```
 make test
+test/bin/get_all_products
 test/bin/get_product
+test/bin/get_product_book
+test/bin/get_product_candles
+test/bin/get_product_stats
 ```
 
 ## Usage
