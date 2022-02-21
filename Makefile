@@ -5,9 +5,13 @@ SRC=src
 OBJ=obj
 LIBDIR=lib/
 LIB_STATIC=$(LIBDIR)/libcbpro.a
-TEST=test/bin/get_product
 SRCS=$(wildcard $(SRC)/*.c)
 OBJS=$(patsubst $(SRC)%.c, $(OBJ)/%.o, $(SRCS))
+TEST=get_product\
+	 get_all_products\
+	 get_product_book\
+	 get_product_candles\
+	 get_product_stats\
 
 all: $(LIB_STATIC)
 test: $(LIB_STATIC) $(TEST)
@@ -20,9 +24,9 @@ $(LIB_STATIC): $(OBJS)
 	@mkdir -p $(@D)
 	ar -rcs $@ $^
 
-$(TEST): test/src/get_product.c
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(LDLIBS) $^ -o $@ -L./lib -lcbpro
+$(TEST):
+	@mkdir -p test/bin
+	$(CC) $(CFLAGS) $(LDLIBS) test/src/$@.c -o test/bin/$@ -L./lib -lcbpro
 
 clean:
 	rm $(OBJ)/* test/bin/* lib/*
