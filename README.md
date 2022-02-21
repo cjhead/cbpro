@@ -32,6 +32,14 @@ A library to interface with the Coinbase/CoinbasePro API
 ```
 git clone https://github.com/cjhead/cbpro.git
 cd cbpro
+make
+```
+
+To create and run a simple test program:
+
+```
+make test
+test/bin/get_product
 ```
 
 ## Usage
@@ -40,6 +48,8 @@ cd cbpro
 - To begin from scratch, create a Client:
 
 ```c
+#include "path/to/cbpro.h"
+
 int main(void) {
     struct Client *client = client_create();
 }
@@ -49,6 +59,8 @@ int main(void) {
   try something like this:
 
 ```c
+#include "path/to/cbpro.h"
+
 int main(void) {
     // Create the client
     struct Client *client = client_create();
@@ -83,6 +95,8 @@ passphrase *********
 - You should then be able to use the functions requiring authentication.
 
 ```c
+#include "path/to/cbpro.h"
+
 int main(void) {
     // Create the client
     struct Client *client = client_create();
@@ -105,7 +119,8 @@ int main(void) {
 }
 ```
 
-- When ready, run `make`
+- When ready to compile, make sure to link to the library
+`-Llib/ -lcbpro`
 
 ## Configuration
 
