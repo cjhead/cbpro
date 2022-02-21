@@ -111,6 +111,9 @@ int main(void) {
 
     // Authenticate the client
     const char *cred_file = "creds.txt";
+    FILE *fh = fopen(cred_file, "r");
+    authorize_client(fh, client);
+
     authorize_client(cred_file, client);
 
     // Get all accounts belonging to the user
