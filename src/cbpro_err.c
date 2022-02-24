@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "cbpro_err.h"
+#include "cbpro.h"
 
 static const char *cbproErrorMsg[] = {
     "SUCCESS",

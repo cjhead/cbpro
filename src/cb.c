@@ -1,4 +1,5 @@
-#include "cb.h"
+#include <string.h>
+#include "cbpro.h"
 
 void exchange_rates(struct Client *client, char *currency) {
     char requestPath[60] = "/exchange-rates?currency=";

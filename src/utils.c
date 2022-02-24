@@ -2,8 +2,38 @@
 #include <string.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
-#include "utils.h"
-#include "cbpro_err.h"
+#include "cbpro.h"
+
+struct Digest {
+    char message[300];
+    char sig[45];
+};
+
+struct Request {
+    char method[10];
+    char requestPath[200];
+    char url[200];
+    char timestamp[11];
+    struct Digest *digest;
+};
+
+/*
+ * Constructs the message sent to the coinbase API:
+ *   The Secret Key is first base64 decoded.
+ *   The result is used to sign the HMAC which uses a sha256 digest.
+ *   This output is then base64 encoded.
+*/
+void create_signature(struct Digest *digest, struct Client *client);
+void create_message(struct Request *request);
+struct Request *init_request(char *requestPath, char *method);
+struct Request *init_cb_request(char *requestPath, char *method);
+
+CURL *init_session();
+struct curl_slist *set_headers(struct Request *request, struct Client *client);
+size_t write_cb(char *contents, size_t itemsize, size_t nitems, void *stream);
+
+struct DataBuf *data_buffer_create();
+int data_buffer_reset(struct DataBuf *data_buf);
 
 CURL *init_session() {
     curl_global_init(CURL_GLOBAL_ALL);

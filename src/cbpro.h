@@ -1,7 +1,50 @@
 #ifndef CBPRO_H
 #define CBPRO_H
 
-#include "utils.h"
+#include <curl/curl.h>
+#include <stdbool.h>
+
+enum Method {
+    GET,
+    POST,
+    PUT,
+    DELETE
+};
+
+enum cbproError {
+    SUCCESS,
+    FILE_NOT_FOUND,
+    FAILED_MEMORY_ALLOCATION,
+    NOT_AUTHORIZED,
+    TOTAL_ERRORS
+};
+
+struct Credentials {
+    char *secret_key;
+    char *api_key;
+    char *passphrase;
+};
+
+struct Client {
+    char *api_url;
+    CURL *session;
+    bool authenticated;
+    struct Credentials *creds;
+    struct DataBuf *data;
+};
+
+struct DataBuf {
+    char *buffer;
+    size_t size;
+};
+
+/*
+ * Client functions
+*/
+
+struct Client *client_create();
+int authorize_client(FILE *fh, struct Client *client);
+void client_cleanup(struct Client *client);
 
 /*
  * CoinbasePro API request functions which require authentication.
@@ -51,5 +94,23 @@ int get_product_trades(struct Client *client, char *currencyPair);
 int get_currencies(struct Client *client);
 int get_currency(struct Client *client, char *currency);
 int get_signed_prices(struct Client *client);
+
+/*
+ * Coinbase API - Unauthenticated
+*/
+
+void exchange_rates(struct Client *client, char *currency);
+void spot_price(struct Client *client, char *currencyPair);
+
+/*
+ * General session handling - Need to be abstracted
+*/
+void send_request(struct Client *client, char *requestPath, enum Method req_method);
+void send_unauth_request(struct Client *client, char *requestPath, enum Method req_method);
+
+/*
+ * Error handling
+*/
+void errorMsg(int error);
 
 #endif

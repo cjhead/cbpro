@@ -3,7 +3,6 @@
 #include <curl/curl.h>
 #include <string.h>
 #include "cbpro.h"
-#include "cbpro_err.h"
 
 int get_payment_methods(struct Client *client) {
     if(client->authenticated == false) {
