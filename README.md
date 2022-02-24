@@ -15,6 +15,7 @@ A library to interface with the Coinbase/CoinbasePro API
 - [Introduction](#introduction)
 - [Dependencies](#dependencies)
 - [Install](#install)
+- [Uninstall](#uninstall)
 - [Usage](#usage)
 - [Configuration](#configuration)
 
@@ -32,6 +33,7 @@ A library to interface with the Coinbase/CoinbasePro API
 - [cJSON](https://github.com/DaveGamble/cJSON) - To format and parse the output.
 
 ## Install
+To compile without installing:
 
 ```
 git clone https://github.com/cjhead/cbpro.git
@@ -39,7 +41,15 @@ cd cbpro
 make
 ```
 
+To install:
+```
+git clone https://github.com/cjhead/cbpro.git
+cd cbpro
+sudo make install
+```
+
 To create and run a couple simple test programs:
+- Note: You may need to modify LD_LIBRARY_PATH
 
 ```
 make test
@@ -50,24 +60,28 @@ test/bin/get_product_candles
 test/bin/get_product_stats
 ```
 
+## Uninstall
+`sudo make uninstall`
+
 ## Usage
-- My goal was to make the process as easy as possible.
-- The src/main.c file can be used as a simple template; just uncomment what you need.
-- To begin from scratch, create a Client:
+- The files in test/src/ can be used as simple templates
+- When compiling your own programs, you'll need to use these flags:
+`-lcbpro -lcurl`
+
+To begin, create a Client:
 
 ```c
-#include "path/to/cbpro.h"
+#include <cbpro.h>
 
 int main(void) {
     struct Client *client = client_create();
 }
 ```
 
-- Not every call requires user authentication. To get you started, you can
-  try something like this:
+Not every call requires user authentication. To get you started, you can try something like this:
 
 ```c
-#include "path/to/cbpro.h"
+#include <cbpro.h>
 
 int main(void) {
     // Create the client
@@ -87,10 +101,8 @@ int main(void) {
 }
 ```
 
-- Some API calls will require the user to be authenticated. Simply copy
-  your API credentials to a locally saved file that you supply in your
-code.
-- The file should look like this:
+Some API calls will require the user to be authenticated. Simply copy your API credentials to a locally saved file that you supply in your code.
+The file should look like this:
 
 ```
 secret_key ****************
@@ -103,7 +115,7 @@ passphrase *********
 - You should then be able to use the functions requiring authentication.
 
 ```c
-#include "path/to/cbpro.h"
+#include <cbpro.h>
 
 int main(void) {
     // Create the client
@@ -129,9 +141,6 @@ int main(void) {
     return EXIT_SUCCESS;
 }
 ```
-
-- When ready to compile, make sure to link to the library
-`-Llib/ -lcbpro`
 
 ## Configuration
 
