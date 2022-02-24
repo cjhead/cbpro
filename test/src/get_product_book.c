@@ -10,7 +10,6 @@ int main(void) {
     printf("%s\n", client->data->buffer);
 
     client_cleanup(client);
-    curl_global_cleanup();
 
     return EXIT_SUCCESS;
 }

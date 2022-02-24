@@ -1,3 +1,4 @@
+#include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/evp.h>
@@ -115,6 +116,7 @@ void client_cleanup(struct Client *client) {
 
     free(client->data);
     curl_easy_cleanup(client->session);
+    curl_global_cleanup();
     free(client);
 }
 
