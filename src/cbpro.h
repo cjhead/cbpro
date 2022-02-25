@@ -105,8 +105,10 @@ void spot_price(struct Client *client, char *currencyPair);
 /*
  * General session handling - Need to be abstracted
 */
-void send_request(struct Client *client, char *requestPath, enum Method req_method);
-void send_unauth_request(struct Client *client, char *requestPath, enum Method req_method);
+// void send_request(struct Client *client, char *requestPath, enum Method req_method);
+void send_request(struct Client *client, const char *requestPath, enum Method req_method);
+void send_unauth_request(struct Client *client, const char *requestPath, enum Method req_method);
+void send_cb_unauth_request(struct Client *client, const char *requestPath, enum Method req_method);
 
 /*
  * Error handling

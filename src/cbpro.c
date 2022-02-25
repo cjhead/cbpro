@@ -4,13 +4,34 @@
 #include <string.h>
 #include "cbpro.h"
 
+struct requestPaths {
+    const char *accounts;
+    const char *profiles;
+    const char *paymentMethods;
+    const char *currencies;
+    const char *products;
+    const char *transfers;
+    const char *cbAccounts;
+    const char *fees;
+    const char *oracle;
+} paths = {
+"/accounts/",
+"/profiles/",
+"/payment-methods",
+"/currencies/",
+"/products/",
+"/transfers/",
+"/coinbase-accounts/",
+"/fees",
+"/oracle",
+};
+
 int get_payment_methods(struct Client *client) {
     if(client->authenticated == false) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[17] = "/payment-methods";
-    send_request(client, requestPath, GET);
+    send_request(client, paths.paymentMethods, GET);
     return(0);
 }
 
@@ -19,8 +40,7 @@ int get_profiles(struct Client *client) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[10] = "/profiles";
-    send_request(client, requestPath, GET);
+    send_request(client, paths.profiles, GET);
     return(0);
 }
 
@@ -29,9 +49,14 @@ int get_profile(struct Client *client, char *profileID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[50] = "/profiles/";
-    strcat(requestPath, profileID);
+    size_t len;
+
+    len = strlen(paths.profiles)+strlen(profileID)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s", paths.profiles, profileID);
+
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -40,10 +65,10 @@ int create_profile(struct Client *client, char *profileName) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[50] = "/profiles";
+    char *requestPath = malloc(strlen(paths.profiles)+strlen(profileName)+1);
 
-    int len = strlen(profileName) + 13;
-    char *post_data = malloc(sizeof(char *)*len);
+    size_t len = strlen(profileName) + 13;
+    char *post_data = malloc(len);
 
     snprintf(post_data, len, "{\"name\":\"%s\"}", profileName);
 
@@ -51,6 +76,16 @@ int create_profile(struct Client *client, char *profileName) {
     send_request(client, requestPath, POST);
 
     free(post_data);
+    free(requestPath);
+    return(0);
+}
+
+int get_accounts(struct Client *client) {
+    if(client->authenticated == false) {
+        return(NOT_AUTHORIZED);
+    }
+
+    send_request(client, paths.accounts, GET);
     return(0);
 }
 
@@ -59,21 +94,14 @@ int get_account_id(struct Client *client, char *accountID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/accounts/";
-    strcat(requestPath, accountID);
+    size_t len;
+
+    len = strlen(paths.accounts)+strlen(accountID)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s", paths.accounts, accountID);
 
     send_request(client, requestPath, GET);
-    return(0);
-}
-
-
-int get_accounts(struct Client *client) {
-    if(client->authenticated == false) {
-        return(NOT_AUTHORIZED);
-    }
-
-    char requestPath[10] = "/accounts";
-    send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -82,12 +110,15 @@ int get_account_holds(struct Client *client, char *accountID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/accounts/";
-    char url_post[7] = "/holds";
-    strcat(requestPath, accountID);
-    strcat(requestPath, url_post);
+    size_t len;
+    char *holds = "/holds";
+
+    len = strlen(paths.accounts)+strlen(accountID)+strlen(holds)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.accounts, accountID, holds);
 
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -96,12 +127,15 @@ int get_account_ledger(struct Client *client, char *accountID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/accounts/";
-    char url_post[8] = "/ledger";
-    strcat(requestPath, accountID);
-    strcat(requestPath, url_post);
+    size_t len;
+    char *ledger = "/ledger";
+
+    len = strlen(paths.accounts)+strlen(accountID)+strlen(ledger)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.accounts, accountID, ledger);
 
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -110,12 +144,14 @@ int get_account_transfers(struct Client *client, char *accountID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/accounts/";
-    char url_post[11] = "/transfers";
-    strcat(requestPath, accountID);
-    strcat(requestPath, url_post);
+    size_t len;
+
+    len = strlen(paths.accounts)+strlen(accountID)+strlen(paths.transfers)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.accounts, accountID, paths.transfers);
 
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -124,10 +160,14 @@ int get_single_transfer(struct Client *client, char *transferID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/transfers/";
-    strcat(requestPath, transferID);
+    size_t len;
+
+    len = strlen(paths.transfers)+strlen(transferID)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s", paths.transfers, transferID);
 
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -136,8 +176,7 @@ int get_all_transfers(struct Client *client) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[11] = "/transfers";
-    send_request(client, requestPath, GET);
+    send_request(client, paths.transfers, GET);
     return(0);
 }
 
@@ -146,8 +185,7 @@ int get_coinbase_wallets(struct Client *client) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[20] = "/coinbase-accounts/";
-    send_request(client, requestPath, GET);
+    send_request(client, paths.cbAccounts, GET);
     return(0);
 }
 
@@ -156,8 +194,7 @@ int get_fees(struct Client *client) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[6] = "/fees";
-    send_request(client, requestPath, GET);
+    send_request(client, paths.fees, GET);
     return(0);
 }
 
@@ -166,12 +203,15 @@ int generate_coinbase_address(struct Client *client, char *cbCryptoWalletID) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[200] = "/coinbase-accounts/";
-    char url_post[11] = "/addresses";
-    strcat(requestPath, cbCryptoWalletID);
-    strcat(requestPath, url_post);
+    size_t len;
+    char *addresses = "/addresses";
+
+    len = strlen(paths.cbAccounts)+strlen(cbCryptoWalletID)+strlen(addresses)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.cbAccounts, cbCryptoWalletID, addresses);
 
     send_request(client, requestPath, POST);
+    free(requestPath);
     return(0);
 }
 
@@ -180,12 +220,17 @@ int get_fee_estimate(struct Client *client, char *currency, char *cbCryptoAddres
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/withdrawals/fee-estimate?currency=";
-    strcat(requestPath, currency);
-    strcat(requestPath, "&crypto_address=");
-    strcat(requestPath, cbCryptoAddress);
+    size_t len;
+    char *estimate = "/withdrawals/fee-estimate?currency=";
+    char *address_p = "&crypto_address=";
+
+    len = strlen(estimate)+strlen(currency)+strlen(address_p)+strlen(cbCryptoAddress)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s%s", estimate, currency, address_p, cbCryptoAddress);
+    printf("%s\n", requestPath);
 
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
@@ -194,102 +239,122 @@ int get_all_fills(struct Client *client, char *currencyPair) {
         return(NOT_AUTHORIZED);
     }
 
-    char requestPath[100] = "/fills?product_id=";
-    strcat(requestPath, currencyPair);
-    strcat(requestPath, "&profile_id=default&limit=100");
+    size_t len;
+    char *fills = "/fills?product_id=";
+    char *limit = "&profile_id=default&limit=100";
+
+    len = strlen(fills)+strlen(currencyPair)+strlen(limit)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", fills, currencyPair, limit);
 
     send_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_currencies(struct Client *client) {
-    char requestPath[12] = "/currencies";
 
-    send_unauth_request(client, requestPath, GET);
+    send_unauth_request(client, paths.currencies, GET);
     return(0);
 }
 
 int get_currency(struct Client *client, char *currency) {
-    char requestPath[25] = "/currencies/";
-    strcat(requestPath, currency);
+    size_t len;
+
+    len = strlen(paths.currencies)+strlen(currency)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s", paths.currencies, currency);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_all_products(struct Client *client) {
-    char requestPath[10] = "/products";
 
-    send_unauth_request(client, requestPath, GET);
+    send_unauth_request(client, paths.products, GET);
     return(0);
 }
 
 int get_product(struct Client *client, char *currencyPair) {
-    char requestPath[25] = "/products/";
-    strcat(requestPath, currencyPair);
+    size_t len;
+
+    len = strlen(paths.products)+strlen(currencyPair)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s", paths.products, currencyPair);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_product_book(struct Client *client, char *currencyPair) {
-    char requestPath[25] = "/products/";
-    char url_post[25] = "/book?level=1";
+    size_t len;
+    char *book_level = "/book?level=1";
 
-    strcat(requestPath, currencyPair);
-    strcat(requestPath, url_post);
+    len = strlen(paths.products)+strlen(currencyPair)+strlen(book_level)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.products, currencyPair, book_level);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_product_candles(struct Client *client, char *currencyPair) {
-    char requestPath[25] = "/products/";
-    char url_post[25] = "/candles?granularity=60";
+    size_t len;
+    char *candle_gran = "/candles?granularity=60";
 
-    strcat(requestPath, currencyPair);
-    strcat(requestPath, url_post);
+    len = strlen(paths.products)+strlen(currencyPair)+strlen(candle_gran)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.products, currencyPair, candle_gran);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_product_stats(struct Client *client, char *currencyPair) {
-    char requestPath[25] = "/products/";
-    char url_post[25] = "/stats";
+    size_t len;
+    char *stats = "/stats";
 
-    strcat(requestPath, currencyPair);
-    strcat(requestPath, url_post);
+    len = strlen(paths.products)+strlen(currencyPair)+strlen(stats)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.products, currencyPair, stats);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_product_ticker(struct Client *client, char *currencyPair) {
-    char requestPath[25] = "/products/";
-    char url_post[25] = "/ticker";
+    size_t len;
+    char *ticker = "/ticker";
 
-    strcat(requestPath, currencyPair);
-    strcat(requestPath, url_post);
+    len = strlen(paths.products)+strlen(currencyPair)+strlen(ticker)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.products, currencyPair, ticker);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_product_trades(struct Client *client, char *currencyPair) {
-    char requestPath[25] = "/products/";
-    char url_post[25] = "/trades";
+    size_t len;
+    char *trades = "/trades";
 
-    strcat(requestPath, currencyPair);
-    strcat(requestPath, url_post);
+    len = strlen(paths.products)+strlen(currencyPair)+strlen(trades)+1;
+    char *requestPath = malloc(len);
+    snprintf(requestPath, len, "%s%s%s", paths.products, currencyPair, trades);
 
     send_unauth_request(client, requestPath, GET);
+    free(requestPath);
     return(0);
 }
 
 int get_signed_prices(struct Client *client) {
-    char requestPath[8] = "/oracle";
 
-    send_unauth_request(client, requestPath, GET);
+    send_unauth_request(client, paths.oracle, GET);
     return(0);
 }

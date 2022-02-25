@@ -26,8 +26,8 @@ struct Request {
 */
 void create_signature(struct Digest *digest, struct Client *client);
 void create_message(struct Request *request);
-struct Request *init_request(char *requestPath, char *method);
-struct Request *init_cb_request(char *requestPath, char *method);
+struct Request *init_request(const char *requestPath, char *method);
+struct Request *init_cb_request(const char *requestPath, char *method);
 
 CURL *init_session();
 struct curl_slist *set_headers(struct Request *request, struct Client *client);
@@ -120,7 +120,7 @@ void client_cleanup(struct Client *client) {
     free(client);
 }
 
-struct Request *init_request(char *requestPath, char *method) {
+struct Request *init_request(const char *requestPath, char *method) {
     struct Request *request = (struct Request *)malloc(sizeof(struct Request));
     if (!request) {
         printf("Unable to allocate memory for request.\n");
@@ -143,7 +143,7 @@ struct Request *init_request(char *requestPath, char *method) {
     return request;
 }
 
-struct Request *init_cb_request(char *requestPath, char *method) {
+struct Request *init_cb_request(const char *requestPath, char *method) {
     struct Request *request = (struct Request *)malloc(sizeof(struct Request));
     if (!request) {
         printf("Unable to allocate memory for request.\n");
@@ -213,7 +213,7 @@ void create_signature(struct Digest *digest, struct Client *client) {
 
     EVP_DecodeBlock((unsigned char *)hmac_key,
                      (const unsigned char *)client->creds->secret_key,
-                     strnlen(client->creds->secret_key, 100));
+                     strlen(client->creds->secret_key));
 
     unsigned char *hmac = NULL;
     unsigned int hmac_len;
@@ -221,7 +221,7 @@ void create_signature(struct Digest *digest, struct Client *client) {
                 (const void *)hmac_key,
                 key_len,
                 (const unsigned char*)digest->message,
-                strnlen(digest->message, 100),
+                strlen(digest->message),
                 hmac,
                 &hmac_len);
 
@@ -256,7 +256,7 @@ struct curl_slist *set_headers(struct Request *request, struct Client *client) {
     return headers;
 }
 
-void send_unauth_request(struct Client *client, char *requestPath, enum Method req_method) {
+void send_unauth_request(struct Client *client, const char *requestPath, enum Method req_method) {
     data_buffer_reset(client->data);
     char method[7];
     switch(req_method) {
@@ -296,7 +296,47 @@ void send_unauth_request(struct Client *client, char *requestPath, enum Method r
     free(request);
 }
 
-void send_request(struct Client *client, char *requestPath, enum Method req_method) {
+void send_cb_unauth_request(struct Client *client, const char *requestPath, enum Method req_method) {
+    data_buffer_reset(client->data);
+    char method[7];
+    switch(req_method) {
+        case GET:
+            strncpy(method, "GET", 4);
+            break;
+        case POST:
+            strncpy(method, "POST", 5);
+            break;
+        case PUT:
+            strncpy(method, "PUT", 4);
+            break;
+        case DELETE:
+            strncpy(method, "DELETE", 7);
+            break;
+        default:
+            strncpy(method, "ERR", 4);
+            break;
+    }
+
+    struct Request *request = init_cb_request(requestPath, method);
+    curl_easy_setopt(client->session, CURLOPT_URL, request->url);
+    curl_easy_setopt(client->session, CURLOPT_CUSTOMREQUEST, request->method);
+    curl_easy_setopt(client->session, CURLOPT_WRITEDATA, (void *)client->data);
+
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(headers, "Accept: application/json");
+    curl_easy_setopt(client->session, CURLOPT_HTTPHEADER, headers);
+
+    CURLcode result = curl_easy_perform(client->session);
+    if (result != CURLE_OK) {
+        fprintf(stderr, "Download problem: %s\n", curl_easy_strerror(result));
+    }
+
+    curl_slist_free_all(headers);
+    free(request->digest);
+    free(request);
+}
+
+void send_request(struct Client *client, const char *requestPath, enum Method req_method) {
     data_buffer_reset(client->data);
 
     char method[7];
