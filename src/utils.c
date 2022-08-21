@@ -235,16 +235,16 @@ struct curl_slist *set_headers(struct Request *request, struct Client *client) {
     create_signature(request->digest, client);
 
     char cb_timestamp_header[100] = "cb-access-timestamp: ";
-    strncat(cb_timestamp_header, request->timestamp, 100);
+    strncat(cb_timestamp_header, request->timestamp, 99);
 
     char cb_access_header[100] = "cb-access-sign: ";
-    strncat(cb_access_header, request->digest->sig, 100);
+    strncat(cb_access_header, request->digest->sig, 99);
 
     char api_key_header[100] = "cb-access-key: ";
-    strncat(api_key_header, client->creds->api_key, 100);
+    strncat(api_key_header, client->creds->api_key, 99);
 
     char passphrase_header[100] = "cb-access-passphrase: ";
-    strncat(passphrase_header, client->creds->passphrase, 100);
+    strncat(passphrase_header, client->creds->passphrase, 99);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Accept: application/json");
